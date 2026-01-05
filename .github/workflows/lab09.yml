@@ -1,0 +1,21 @@
+name: Lab 09 - Rust
+on:
+  push:
+    paths:
+      - 'lab09/**'
+  pull_request:
+    paths:
+      - 'lab09/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo test
+        run: cd lab09 && cargo test --verbose
+      - name: Run cargo fmt check
+        run: cd lab09 && cargo fmt --check
+      - name: Run cargo clippy
+        run: cd lab09 && cargo clippy -- -D warnings

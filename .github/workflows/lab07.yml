@@ -1,0 +1,21 @@
+name: Lab 07 - Python
+on:
+  push:
+    paths:
+      - 'lab07/**'
+  pull_request:
+    paths:
+      - 'lab07/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Lab 07 tests
+        run: pytest lab07/tests/ -v

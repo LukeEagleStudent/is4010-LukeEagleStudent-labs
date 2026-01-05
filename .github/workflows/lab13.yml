@@ -1,0 +1,21 @@
+name: Lab 13 - Rust
+on:
+  push:
+    paths:
+      - 'lab13/**'
+  pull_request:
+    paths:
+      - 'lab13/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Run cargo test
+        run: cd lab13 && cargo test --verbose
+      - name: Run cargo fmt check
+        run: cd lab13 && cargo fmt --check
+      - name: Run cargo clippy
+        run: cd lab13 && cargo clippy -- -D warnings
