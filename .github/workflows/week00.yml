@@ -1,6 +1,7 @@
 name: Week 00 - Setup Verification
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'week00/**'
@@ -19,8 +20,26 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Check if lab file exists
+        id: check_file
+        run: |
+          if [ -f "week00/lab00.py" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Run Week 00 Python tests
+        if: steps.check_file.outputs.exists == 'true'
         run: pytest week00/tests/ -v
+
+      - name: Lab file not found
+        if: steps.check_file.outputs.exists == 'false'
+        run: |
+          echo "⚠️ week00/lab00.py not found"
+          echo "Create this file to enable automated testing"
+          exit 0
 
   test-rust:
     runs-on: ubuntu-latest
@@ -30,11 +49,35 @@ jobs:
         with:
           toolchain: stable
           profile: minimal
+
+      - name: Check if Rust project exists
+        id: check_rust
+        run: |
+          if [ -f "week00_rust/src/main.rs" ] && [ -s "week00_rust/src/main.rs" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build Rust verification
+        if: steps.check_rust.outputs.exists == 'true'
         run: cargo build --manifest-path week00_rust/Cargo.toml
+
       - name: Run Rust tests
+        if: steps.check_rust.outputs.exists == 'true'
         run: cargo test --manifest-path week00_rust/Cargo.toml
+
       - name: Check Rust formatting
+        if: steps.check_rust.outputs.exists == 'true'
         run: cargo fmt --manifest-path week00_rust/Cargo.toml --check
+
       - name: Run Clippy
+        if: steps.check_rust.outputs.exists == 'true'
         run: cargo clippy --manifest-path week00_rust/Cargo.toml -- -D warnings
+
+      - name: Rust project not found
+        if: steps.check_rust.outputs.exists == 'false'
+        run: |
+          echo "⚠️ week00_rust/src/main.rs not found or empty"
+          echo "This is optional - only complete if you want to verify Rust setup"
+          exit 0
